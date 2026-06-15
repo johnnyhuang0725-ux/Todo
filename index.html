@@ -3,26 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>四象限清单</title>
-  <style>
-    body {
-      margin: 0;
-      background: #faf8f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      font-family: system-ui, sans-serif;
-      color: #9c8c84;
-      font-size: 14px;
-    }
-  </style>
+  <title>To Do</title>
+  <style>body{margin:0;background:#f0ece7;display:flex;align-items:center;justify-content:center;height:100vh;font-family:system-ui,sans-serif;color:#9e908a;font-size:14px}</style>
 </head>
 <body>
   <span>跳转中…</span>
   <script>
-    var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-      || window.innerWidth < 768;
+    var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
     window.location.replace(isMobile ? 'mobile.html' : 'desktop.html');
   </script>
 </body>

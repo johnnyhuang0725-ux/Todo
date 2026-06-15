@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 56"><rect width="80" height="56" fill="#faf8f5"/><text x="40" y="36" font-size="26" text-anchor="middle" font-family="sans-serif">✓</text></svg>
+</template>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; overflow: hidden; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(120,90,70,0.2); border-radius: 3px; }
+</style>
+</helmet>
+
+<div style="height:100vh; display:flex; flex-direction:column; background:{{bg}}; color:{{fg}}; font-family:'Noto Sans SC',system-ui,-apple-system,sans-serif; transition:background 0.3s,color 0.3s; overflow:hidden">
+
+  <!-- ── HEADER ── -->
+  <div style="display:flex; align-items:center; gap:12px; padding:14px 22px 12px; border-bottom:1px solid {{border}}; flex-shrink:0; transition:border-color 0.3s">
+    <a href="desktop.html" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:5px; padding:7px 12px; border-radius:20px; background:{{backBtnBg}}; transition:all 0.15s; flex-shrink:0" style-hover="filter:brightness(0.93)">
+      <span style="font-size:15px; line-height:1">←</span>
+      <span style="font-size:12.5px; font-weight:500; color:{{fg}}">返回</span>
+    </a>
+    <div style="flex-shrink:0">
+      <div style="font-size:17px; font-weight:700; letter-spacing:-0.3px">已完成事项</div>
+      <div style="font-size:10px; color:{{muted}}; letter-spacing:0.8px; margin-top:1px; text-transform:uppercase">Completed Tasks</div>
+    </div>
+    <div style="flex-shrink:0; font-size:22px; font-weight:700; color:#7ea87c; min-width:44px; text-align:right">{{doneCount}}</div>
+    <div style="flex:1"></div>
+
+    <sc-if value="{{notClearConfirm}}" hint-placeholder-val="{{true}}">
+      <button onClick="{{onClearAll}}" style="flex-shrink:0; background:none; border:1px solid {{border}}; border-radius:20px; padding:7px 14px; font-size:12.5px; color:{{muted}}; cursor:pointer; transition:all 0.15s; font-family:inherit; white-space:nowrap" style-hover="border-color:#e05e3f; color:#e05e3f">清除全部</button>
+    </sc-if>
+
+    <sc-if value="{{isClearConfirm}}" hint-placeholder-val="{{false}}">
+      <div style="display:flex; align-items:center; gap:8px; flex-shrink:0">
+        <span style="font-size:12px; color:{{muted}}; white-space:nowrap">确认删除全部已完成？</span>
+        <button onClick="{{onClearConfirm}}" style="background:#e05e3f; color:white; border:none; border-radius:8px; padding:6px 12px; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap">确定</button>
+        <button onClick="{{onClearCancel}}" style="background:{{border}}; color:{{muted}}; border:none; border-radius:8px; padding:6px 10px; font-size:12px; cursor:pointer; font-family:inherit">取消</button>
+      </div>
+    </sc-if>
+
+    <button onClick="{{onExportClick}}" style="flex-shrink:0; display:flex; align-items:center; gap:4px; padding:7px 13px; border-radius:20px; background:{{ioBtnBg}}; color:{{ioBtnColor}}; font-size:12px; font-weight:500; border:none; cursor:pointer; font-family:'Noto Sans SC',system-ui,sans-serif; transition:all 0.15s; white-space:nowrap" style-hover="filter:brightness(0.93)">⬆ 导出</button>
+    <label style="flex-shrink:0; display:flex; align-items:center; gap:4px; padding:7px 13px; border-radius:20px; background:{{ioBtnBg}}; color:{{ioBtnColor}}; font-size:12px; font-weight:500; cursor:pointer; transition:all 0.15s; white-space:nowrap; user-select:none" style-hover="filter:brightness(0.93)">
+      <input type="file" accept=".json" onChange="{{onImport}}" style="display:none">
+      ⬇ 导入
+    </label>
+    <div onClick="{{toggleDark}}" style="flex-shrink:0; width:38px; height:38px; border-radius:50%; background:{{darkBtnBg}}; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; transition:background 0.3s; user-select:none" style-hover="filter:brightness(0.91)">{{darkIcon}}</div>
+  </div>
+
+  <!-- ── EMPTY STATE ── -->
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:{{muted}}; padding:40px 20px; text-align:center">
+      <div style="font-size:56px; margin-bottom:20px; line-height:1">🎉</div>
+      <div style="font-size:16px; font-weight:600; margin-bottom:8px; color:{{fg}}">暂无已完成任务</div>
+      <div style="font-size:13px; opacity:0.65; max-width:220px; line-height:1.6">完成任务后，它们会出现在这里</div>
+      <a href="desktop.html" style="text-decoration:none; margin-top:28px; display:inline-flex; align-items:center; gap:6px; background:#e05e3f; color:white; border-radius:20px; padding:10px 20px; font-size:13px; font-weight:600; transition:opacity 0.15s" style-hover="opacity:0.85">← 去添加任务</a>
+    </div>
+  </sc-if>
+
+  <!-- ── GROUPED LIST ── -->
+  <sc-if value="{{hasItems}}" hint-placeholder-val="{{true}}">
+    <div style="flex:1; overflow-y:auto; padding:10px 20px 20px">
+      <sc-for list="{{groups}}" as="group" hint-placeholder-count="2">
+
+        <!-- ── Date group header ── -->
+        <div style="display:flex; align-items:center; gap:10px; margin-top:{{group.topMargin}}; margin-bottom:10px">
+          <div style="display:flex; align-items:center; gap:7px">
+            <span style="font-size:13px; font-weight:700; color:{{fg}}">{{group.dateLabel}}</span>
+            <span style="font-size:11px; color:{{muted}}; background:{{group.countBg}}; padding:2px 8px; border-radius:10px; font-weight:500">{{group.count}} 项</span>
+          </div>
+          <div style="flex:1; height:1px; background:{{border}}"></div>
+        </div>
+
+        <!-- ── Tasks in this group ── -->
+        <sc-for list="{{group.tasks}}" as="task" hint-placeholder-count="2">
+          <div style="display:flex; align-items:stretch; background:{{cardBg}}; border-radius:13px; margin-bottom:8px; border:1px solid {{border}}; overflow:hidden; transition:background 0.3s,border-color 0.3s">
+            <div style="width:4px; background:{{task.barColor}}; flex-shrink:0"></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:11px 14px; flex:1; min-width:0">
+              <div style="flex:1; min-width:0">
+                <span style="font-size:13.5px; text-decoration:line-through; opacity:0.45; word-break:break-word; display:block; line-height:1.45">{{task.label}}</span>
+                <sc-if value="{{task.hasDueDate}}" hint-placeholder-val="{{false}}">
+                  <div style="font-size:11px; color:{{muted}}; margin-top:3px; display:flex; align-items:center; gap:3px">
+                    <span>📅</span><span>{{task.dueDateDisplay}}</span>
+                  </div>
+                </sc-if>
+              </div>
+              <div style="flex-shrink:0; font-size:11px; color:{{task.barColor}}; background:{{task.badgeBg}}; padding:3px 8px; border-radius:6px; font-weight:500; white-space:nowrap; display:flex; align-items:center; gap:4px">
+                <span>{{task.qEmoji}}</span><span>{{task.qLabel}}</span>
+              </div>
+              <button data-taskid="{{task.id}}" onClick="{{onRestore}}" style="flex-shrink:0; background:none; border:1px solid {{border}}; border-radius:8px; padding:5px 11px; font-size:12px; color:{{muted}}; cursor:pointer; transition:all 0.15s; font-family:inherit; white-space:nowrap" style-hover="border-color:#7ea87c; color:#7ea87c">恢复</button>
+              <button data-taskid="{{task.id}}" onClick="{{onDelete}}" style="flex-shrink:0; background:none; border:none; cursor:pointer; color:{{muted}}; padding:2px 5px; border-radius:5px; font-size:16px; line-height:1; opacity:0.32; transition:all 0.15s" style-hover="opacity:1; color:#e05e3f; background:rgba(224,94,63,0.1)">×</button>
+            </div>
+          </div>
+        </sc-for>
+
+      </sc-for>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    darkMode: false,
+    tasks: [],
+    nextId: 1,
+    clearConfirm: false,
+  };
+
+  toggleDark = () => this.setState(s => ({ darkMode: !s.darkMode }));
+
+  onExportClick = () => {
+    try {
+      const raw = localStorage.getItem('quadrant-matrix-v1');
+      const data = raw ? JSON.parse(raw) : { tasks: this.state.tasks, nextId: this.state.nextId, darkMode: this.state.darkMode };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `todo-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch(e) {}
+  };
+
+  onImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const d = JSON.parse(ev.target.result);
+        if (d && Array.isArray(d.tasks)) {
+          localStorage.setItem('quadrant-matrix-v1', JSON.stringify(d));
+          if (this._mounted) this.setState({
+            tasks:    d.tasks,
+            nextId:   d.nextId   || this.state.nextId,
+            darkMode: typeof d.darkMode === 'boolean' ? d.darkMode : this.state.darkMode,
+          });
+        }
+      } catch(e) {}
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  };
+  onClearAll     = () => this.setState({ clearConfirm: true });
+  onClearCancel  = () => this.setState({ clearConfirm: false });
+  onClearConfirm = () => this.setState(s => ({ tasks: s.tasks.filter(t => !t.done), clearConfirm: false }));
+
+  _tid = (e) => parseInt((e.currentTarget || e.target).getAttribute('data-taskid'));
+
+  onRestore = (e) => {
+    const id = this._tid(e);
+    if (!isNaN(id)) this.setState(s => ({ tasks: s.tasks.map(t => t.id === id ? { ...t, done: false, completedAt: null } : t) }));
+  };
+  onDelete = (e) => {
+    e.stopPropagation();
+    const id = this._tid(e);
+    if (!isNaN(id)) this.setState(s => ({ tasks: s.tasks.filter(t => t.id !== id) }));
+  };
+
+  componentDidMount() {
+    this._mounted = true;
+    try {
+      const d = JSON.parse(localStorage.getItem('quadrant-matrix-v1') || 'null');
+      if (d) this.setState({
+        tasks:    Array.isArray(d.tasks) ? d.tasks : [],
+        nextId:   d.nextId   || 1,
+        darkMode: typeof d.darkMode === 'boolean' ? d.darkMode : false,
+      });
+    } catch (e) {}
+  }
+
+  componentDidUpdate(pp, ps) {
+    const { tasks, nextId, darkMode } = this.state;
+    if (ps.tasks !== tasks || ps.darkMode !== darkMode)
+      try { localStorage.setItem('quadrant-matrix-v1', JSON.stringify({ tasks, nextId, darkMode })); } catch (e) {}
+  }
+
+  fmt(s) {
+    if (!s) return '';
+    const d = new Date(s + 'T00:00:00');
+    return `${d.getMonth() + 1}月${d.getDate()}日`;
+  }
+
+  fmtGroupDate(dateStr) {
+    if (!dateStr) return '更早完成';
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const d = new Date(dateStr + 'T00:00:00');
+    const diff = Math.round((today - d) / 86400000);
+    if (diff === 0) return '今天';
+    if (diff === 1) return '昨天';
+    const y = d.getFullYear();
+    const label = `${d.getMonth() + 1}月${d.getDate()}日`;
+    return y === today.getFullYear() ? label : `${y}年${label}`;
+  }
+
+  renderVals() {
+    const { tasks, darkMode, clearConfirm } = this.state;
+
+    const bg        = darkMode ? '#141210' : '#faf8f5';
+    const cardBg    = darkMode ? '#1e1a17' : '#ffffff';
+    const fg        = darkMode ? '#f0e8e2' : '#2c2420';
+    const muted     = darkMode ? '#7a6b64' : '#9c8c84';
+    const border    = darkMode ? '#2e2420' : '#ede8e4';
+    const backBtnBg = darkMode ? '#2a2320' : '#f0ece8';
+
+    const qInfo = {
+      1: { color: '#e05e3f', label: '重要·紧急',     emoji: '🚨', badgeBg: darkMode ? 'rgba(224,94,63,0.12)'   : 'rgba(224,94,63,0.08)'   },
+      2: { color: '#c9903a', label: '重要·不紧急',   emoji: '🎯', badgeBg: darkMode ? 'rgba(201,144,58,0.12)'  : 'rgba(201,144,58,0.08)'  },
+      3: { color: '#b5714e', label: '不重要·紧急',   emoji: '📤', badgeBg: darkMode ? 'rgba(181,113,78,0.12)'  : 'rgba(181,113,78,0.08)'  },
+      4: { color: '#7ea87c', label: '不重要·不紧急', emoji: '💤', badgeBg: darkMode ? 'rgba(126,168,124,0.12)' : 'rgba(126,168,124,0.08)' },
+    };
+
+    // sort done tasks: newest completedAt first, then by quadrant
+    const doneTasks = tasks
+      .filter(t => t.done)
+      .sort((a, b) => {
+        const da = a.completedAt || '0000-00-00';
+        const db = b.completedAt || '0000-00-00';
+        if (db !== da) return db.localeCompare(da);
+        return (a.quadrant || 0) - (b.quadrant || 0);
+      });
+
+    // build groups
+    const groupMap = {};
+    const groupOrder = [];
+    for (const t of doneTasks) {
+      const key = t.completedAt || '';
+      if (!groupMap[key]) { groupMap[key] = []; groupOrder.push(key); }
+      groupMap[key].push(t);
+    }
+
+    const countBg = darkMode ? 'rgba(126,168,124,0.15)' : 'rgba(126,168,124,0.12)';
+    const groups = groupOrder.map((key, gi) => ({
+      dateLabel: this.fmtGroupDate(key),
+      topMargin: gi === 0 ? '8px' : '22px',
+      count: groupMap[key].length,
+      countBg,
+      tasks: groupMap[key].map(t => {
+        const q = qInfo[t.quadrant] || qInfo[1];
+        return {
+          id:             t.id,
+          label:          t.text,
+          hasDueDate:     !!t.dueDate,
+          dueDateDisplay: this.fmt(t.dueDate),
+          barColor:       q.color,
+          qLabel:         q.label,
+          qEmoji:         q.emoji,
+          badgeBg:        q.badgeBg,
+        };
+      }),
+    }));
+
+    const doneCount = doneTasks.length;
+
+    return {
+      bg, cardBg, fg, muted, border, backBtnBg,
+      darkMode, darkIcon: darkMode ? '☀️' : '🌙',
+      darkBtnBg: darkMode ? '#2a2320' : '#f0ece8',
+      toggleDark:      this.toggleDark,
+      ioBtnBg:    darkMode ? 'rgba(255,255,255,0.07)' : '#f0ece8',
+      ioBtnColor: darkMode ? '#9c8c84' : '#7a6b64',
+      onExportClick: this.onExportClick,
+      onImport:      this.onImport,
+      groups, doneCount,
+      isEmpty:         doneCount === 0,
+      hasItems:        doneCount > 0,
+      clearConfirm,
+      isClearConfirm:  clearConfirm,
+      notClearConfirm: !clearConfirm,
+      onRestore:       this.onRestore,
+      onDelete:        this.onDelete,
+      onClearAll:      this.onClearAll,
+      onClearConfirm:  this.onClearConfirm,
+      onClearCancel:   this.onClearCancel,
+    };
+  }
+}
+</script>
+</body>
+</html>

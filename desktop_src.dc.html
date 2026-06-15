@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 56"><rect width="80" height="56" fill="#f0ece7"/><rect x="6" y="8" width="32" height="18" rx="3" fill="#b87a6a" opacity="0.9"/><rect x="42" y="8" width="32" height="18" rx="3" fill="#b09860" opacity="0.9"/><rect x="6" y="30" width="32" height="18" rx="3" fill="#9e8272" opacity="0.9"/><rect x="42" y="30" width="32" height="18" rx="3" fill="#8aa685" opacity="0.9"/></svg>
+</template>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; overflow: hidden; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(120,90,70,0.15); border-radius: 3px; }
+  input[type=date]::-webkit-calendar-picker-indicator { opacity: 0.5; cursor: pointer; }
+  @keyframes errShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 60%{transform:translateX(4px)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+</style>
+</helmet>
+
+<div style="height:100vh; display:flex; flex-direction:column; background:{{bg}}; color:{{fg}}; font-family:'Noto Sans SC',system-ui,-apple-system,sans-serif; transition:background 0.3s,color 0.3s; overflow:hidden">
+
+  <!-- HEADER -->
+  <div style="display:flex; align-items:center; gap:16px; padding:13px 20px 11px; border-bottom:1px solid {{border}}; flex-shrink:0; transition:border-color 0.3s">
+    <!-- Brand + dots -->
+    <div style="display:flex; align-items:center; gap:8px; flex-shrink:0">
+      <div onClick="{{goMain}}" style="font-size:16px; font-weight:700; letter-spacing:-0.3px; color:{{fg}}; cursor:pointer; user-select:none" title="返回总览">To do</div>
+      <div style="display:flex; gap:4px; align-items:center">
+        <div data-q="1" onClick="{{onGoQ}}" style="width:8px; height:8px; border-radius:50%; background:#b87a6a; opacity:{{dot1Opacity}}; cursor:pointer; transition:opacity 0.2s,transform 0.15s; flex-shrink:0" style-hover="transform:scale(1.4)"></div>
+        <div data-q="2" onClick="{{onGoQ}}" style="width:8px; height:8px; border-radius:50%; background:#b09860; opacity:{{dot2Opacity}}; cursor:pointer; transition:opacity 0.2s,transform 0.15s; flex-shrink:0" style-hover="transform:scale(1.4)"></div>
+        <div data-q="3" onClick="{{onGoQ}}" style="width:8px; height:8px; border-radius:50%; background:#9e8272; opacity:{{dot3Opacity}}; cursor:pointer; transition:opacity 0.2s,transform 0.15s; flex-shrink:0" style-hover="transform:scale(1.4)"></div>
+        <div data-q="4" onClick="{{onGoQ}}" style="width:8px; height:8px; border-radius:50%; background:#8aa685; opacity:{{dot4Opacity}}; cursor:pointer; transition:opacity 0.2s,transform 0.15s; flex-shrink:0" style-hover="transform:scale(1.4)"></div>
+      </div>
+    </div>
+    <!-- Progress -->
+    <div style="flex:1; max-width:260px">
+      <div style="display:flex; justify-content:space-between; margin-bottom:5px">
+        <span style="font-size:11px; color:{{muted}}">完成进度</span>
+        <span style="font-size:11px; font-weight:600; color:{{fg}}">{{done}} / {{total}} 项</span>
+      </div>
+      <div style="height:5px; background:{{border}}; border-radius:3px; overflow:hidden">
+        <div style="height:100%; width:{{pctStr}}; background:linear-gradient(90deg,#b87a6a,#b09860); border-radius:3px; transition:width 0.5s ease"></div>
+      </div>
+    </div>
+    <div style="font-size:20px; font-weight:700; color:#b87a6a; flex-shrink:0">{{pctLabel}}</div>
+    <div style="flex:1"></div>
+    <a href="done.html" style="text-decoration:none; flex-shrink:0; display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:20px; background:{{doneNavBg}}; color:{{doneNavColor}}; font-size:12px; font-weight:500; transition:all 0.15s; white-space:nowrap; margin-right:2px" style-hover="filter:brightness(0.93)">✓ {{done}} 项已完成</a>
+    <button onClick="{{onExportSummary}}" style="flex-shrink:0; display:flex; align-items:center; gap:4px; padding:6px 12px; border-radius:20px; background:#b87a6a; color:white; font-size:12px; font-weight:600; border:none; cursor:pointer; font-family:'Noto Sans SC',system-ui,sans-serif; transition:all 0.15s; white-space:nowrap" style-hover="filter:brightness(0.9)">导出摘要</button>
+    <button onClick="{{onExportClick}}" style="flex-shrink:0; padding:6px 12px; border-radius:20px; background:{{ioBtnBg}}; color:{{ioBtnColor}}; font-size:12px; font-weight:500; border:none; cursor:pointer; font-family:'Noto Sans SC',system-ui,sans-serif; transition:all 0.15s; white-space:nowrap" style-hover="filter:brightness(0.93)">备份</button>
+    <label style="flex-shrink:0; padding:6px 12px; border-radius:20px; background:{{ioBtnBg}}; color:{{ioBtnColor}}; font-size:12px; font-weight:500; cursor:pointer; transition:all 0.15s; white-space:nowrap; user-select:none" style-hover="filter:brightness(0.93)">
+      <input type="file" accept=".json" onChange="{{onImport}}" style="display:none">导入
+    </label>
+    <div onClick="{{toggleDark}}" style="flex-shrink:0; width:36px; height:36px; border-radius:50%; background:{{darkBtnBg}}; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; transition:background 0.3s; user-select:none" style-hover="filter:brightness(0.91)">{{darkIcon}}</div>
+  </div>
+
+  <!-- ══ MAIN VIEW: 2×2 Grid ══ -->
+  <sc-if value="{{isMainView}}" hint-placeholder-val="{{true}}">
+    <div style="flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:10px; padding:10px; min-height:0; overflow:hidden; animation:fadeIn 0.22s ease">
+
+      <!-- Q1 重要·紧急 -->
+      <div onDragOver="{{onDragOverQ1}}" onDrop="{{onDropQ1}}" onDragLeave="{{onDragLeave}}" style="background:{{cardBg}}; border-radius:16px; display:flex; flex-direction:column; min-height:0; box-shadow:{{q1Shadow}}; transition:box-shadow 0.2s,background 0.3s,transform 0.15s; overflow:hidden" style-hover="transform:translateY(-2px)">
+        <div data-q="1" onClick="{{onGoQ}}" style="background:#b87a6a; padding:10px 14px 9px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none" title="全屏查看">
+          <div style="display:flex; align-items:center; gap:6px">
+            <span style="font-size:14px; line-height:1">🚨</span>
+            <span style="font-size:13px; font-weight:700; color:white">重要 · 紧急</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px">
+            <div style="background:rgba(0,0,0,0.18); color:white; font-size:11px; font-weight:700; min-width:24px; height:24px; padding:0 6px; border-radius:12px; display:flex; align-items:center; justify-content:center">{{q1Count}}</div>
+            <span style="color:rgba(255,255,255,0.7); font-size:12px">↗</span>
+          </div>
+        </div>
+        <div data-q="1" onClick="{{onGoQBody}}" style="flex:1; overflow-y:auto; padding:8px; min-height:0; cursor:pointer">
+          <sc-for list="{{q1Tasks}}" as="task" hint-placeholder-count="2">
+            <div draggable="true" data-taskid="{{task.id}}" onDragStart="{{onTaskDragStart}}" onDragEnd="{{onTaskDragEnd}}" style="display:flex; align-items:flex-start; gap:8px; padding:8px 10px; background:{{cardBg}}; border-radius:10px; margin-bottom:5px; border:1px solid {{border}}; cursor:grab; transition:box-shadow 0.15s,transform 0.15s,opacity 0.15s; opacity:{{task.itemOpacity}}" style-hover="box-shadow:0 2px 10px rgba(0,0,0,0.07); transform:translateY(-1px)">
+              <div data-taskid="{{task.id}}" onClick="{{onTaskToggle}}" style="flex-shrink:0; width:16px; height:16px; border-radius:50%; border:2px solid {{task.checkBorderColor}}; background:{{task.checkBg}}; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:2px; transition:all 0.18s">
+                <sc-if value="{{task.done}}" hint-placeholder-val="{{false}}"><span style="color:white; font-size:9px; font-weight:800; line-height:1">✓</span></sc-if>
+              </div>
+              <div style="flex-shrink:0; width:7px; height:7px; border-radius:50%; background:{{task.colorDot}}; margin-top:4px; transition:background 0.2s"></div>
+              <div style="flex:1; min-width:0">
+                <sc-if value="{{task.notEditing}}" hint-placeholder-val="{{true}}">
+                  <div data-taskid="{{task.id}}" onClick="{{onTaskLabelClick}}" style="cursor:text">
+                    <span style="font-size:12.5px; line-height:1.45; text-decoration:{{task.textDecoration}}; opacity:{{task.textOpacity}}; word-break:break-word; display:block">{{task.label}}</span>
+                    <sc-if value="{{task.hasDueDate}}" hint-placeholder-val="{{false}}">
+                      <div style="font-size:10.5px; color:{{task.overdueColor}}; margin-top:3px; display:flex; align-items:center; gap:3px">
+                        <span>📅</span><span>{{task.dueDateDisplay}}</span>
+                        <sc-if value="{{task.isOverdue}}" hint-placeholder-val="{{false}}"><span style="background:#b87a6a; color:white; font-size:9px; font-weight:700; padding:1px 5px; border-radius:4px; margin-left:2px">逾期</span></sc-if>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+                <sc-if value="{{task.isEditing}}" hint-placeholder-val="{{false}}">
+                  <div style="display:flex; flex-direction:column; gap:6px">
+                    <input value="{{editText}}" onChange="{{onEditTextChange}}" onKeyDown="{{onEditKeyDown}}" autoFocus="{{true}}" style="width:100%; border:1.5px solid #b87a6a; border-radius:7px; padding:6px 9px; font-size:12.5px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; box-sizing:border-box">
+                    <div style="display:flex; gap:5px; align-items:center">
+                      <input type="date" value="{{editDate}}" onChange="{{onEditDateChange}}" style="flex:1; border:1px solid {{border}}; border-radius:7px; padding:5px 7px; font-size:11px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; min-width:0">
+                      <button onClick="{{confirmEdit}}" style="background:#b87a6a; color:white; border:none; border-radius:7px; padding:5px 11px; font-size:11.5px; font-weight:600; cursor:pointer; font-family:inherit; flex-shrink:0">保存</button>
+                      <button onClick="{{cancelEdit}}" style="background:{{border}}; color:{{muted}}; border:none; border-radius:7px; padding:5px 8px; font-size:11.5px; cursor:pointer; font-family:inherit; flex-shrink:0">取消</button>
+                    </div>
+                    <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap">
+                      <span style="font-size:10.5px; color:{{muted}}; white-space:nowrap">标签色</span>
+                      <sc-for list="{{editSwatches}}" as="sw" hint-placeholder-count="10">
+                        <div data-color="{{sw.hex}}" onClick="{{onSwatchClickEdit}}" style="width:15px; height:15px; border-radius:50%; background:{{sw.hex}}; cursor:pointer; box-shadow:{{sw.ring}}; transition:transform 0.12s; flex-shrink:0" style-hover="transform:scale(1.2)"></div>
+                      </sc-for>
+                      <div onClick="{{clearEditColor}}" style="width:15px; height:15px; border-radius:50%; border:1.5px dashed {{muted}}; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0.5; flex-shrink:0" style-hover="opacity:1"><span style="font-size:9px; color:{{muted}}; line-height:1">×</span></div>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+              <button data-taskid="{{task.id}}" onClick="{{onTaskDelete}}" style="flex-shrink:0; background:none; border:none; cursor:pointer; color:{{muted}}; padding:1px 3px; font-size:15px; line-height:1; opacity:0.35; transition:all 0.15s" style-hover="opacity:1; color:#b87a6a">×</button>
+            </div>
+          </sc-for>
+          <sc-if value="{{q1Empty}}" hint-placeholder-val="{{false}}"><div style="text-align:center; padding:16px 0 6px; color:{{muted}}; font-size:11.5px; opacity:0.6">拖入或点击下方添加</div></sc-if>
+          <sc-if value="{{addingToQ1}}" hint-placeholder-val="{{false}}">
+            <div style="background:rgba(184,122,106,0.06); border-radius:10px; padding:9px; margin-top:4px; border:1px solid rgba(184,122,106,0.2)">
+              <input value="{{newText}}" onChange="{{onTextChange}}" onKeyDown="{{onKeyDown}}" placeholder="{{inputPlaceholder}}" autoFocus="{{true}}" style="width:100%; border:1.5px solid {{inputBorderColor}}; border-radius:7px; padding:7px 9px; font-size:12.5px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; animation:{{inputAnim}}; box-sizing:border-box">
+              <div style="display:flex; gap:5px; margin-top:6px; align-items:center">
+                <input type="date" value="{{newDate}}" onChange="{{onDateChange}}" style="flex:1; border:1px solid {{border}}; border-radius:7px; padding:5px 7px; font-size:11px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; min-width:0">
+                <button onClick="{{confirmAdd}}" style="background:#b87a6a; color:white; border:none; border-radius:7px; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; flex-shrink:0">添加</button>
+                <button onClick="{{cancelAdd}}" style="background:{{border}}; color:{{muted}}; border:none; border-radius:7px; padding:6px 8px; font-size:11.5px; cursor:pointer; font-family:inherit; flex-shrink:0">取消</button>
+              </div>
+              <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap; margin-top:6px">
+                <span style="font-size:10.5px; color:{{muted}}; white-space:nowrap">标签色</span>
+                <sc-for list="{{addSwatches}}" as="sw" hint-placeholder-count="10">
+                  <div data-color="{{sw.hex}}" onClick="{{onSwatchClickAdd}}" style="width:15px; height:15px; border-radius:50%; background:{{sw.hex}}; cursor:pointer; box-shadow:{{sw.ring}}; transition:transform 0.12s; flex-shrink:0" style-hover="transform:scale(1.2)"></div>
+                </sc-for>
+                <div onClick="{{clearAddColor}}" style="width:15px; height:15px; border-radius:50%; border:1.5px dashed {{muted}}; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0.5; flex-shrink:0" style-hover="opacity:1"><span style="font-size:9px; color:{{muted}}; line-height:1">×</span></div>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{notAddingToQ1}}" hint-placeholder-val="{{true}}">
+            <div onClick="{{startAddQ1}}" style="display:flex; align-items:center; gap:5px; padding:6px 7px; cursor:pointer; border-radius:7px; color:{{muted}}; font-size:12px; margin-top:2px; transition:all 0.15s" style-hover="color:#b87a6a; background:rgba(184,122,106,0.07)">
+              <span style="font-size:15px; font-weight:300; line-height:1">+</span><span>添加任务</span>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <!-- Q2 重要·不紧急 -->
+      <div onDragOver="{{onDragOverQ2}}" onDrop="{{onDropQ2}}" onDragLeave="{{onDragLeave}}" style="background:{{cardBg}}; border-radius:16px; display:flex; flex-direction:column; min-height:0; box-shadow:{{q2Shadow}}; transition:box-shadow 0.2s,background 0.3s,transform 0.15s; overflow:hidden" style-hover="transform:translateY(-2px)">
+        <div data-q="2" onClick="{{onGoQ}}" style="background:#b09860; padding:10px 14px 9px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none">
+          <div style="display:flex; align-items:center; gap:6px">
+            <span style="font-size:14px; line-height:1">🎯</span>
+            <span style="font-size:13px; font-weight:700; color:white">重要 · 不紧急</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px">
+            <div style="background:rgba(0,0,0,0.18); color:white; font-size:11px; font-weight:700; min-width:24px; height:24px; padding:0 6px; border-radius:12px; display:flex; align-items:center; justify-content:center">{{q2Count}}</div>
+            <span style="color:rgba(255,255,255,0.7); font-size:12px">↗</span>
+          </div>
+        </div>
+        <div data-q="2" onClick="{{onGoQBody}}" style="flex:1; overflow-y:auto; padding:8px; min-height:0; cursor:pointer">
+          <sc-for list="{{q2Tasks}}" as="task" hint-placeholder-count="2">
+            <div draggable="true" data-taskid="{{task.id}}" onDragStart="{{onTaskDragStart}}" onDragEnd="{{onTaskDragEnd}}" style="display:flex; align-items:flex-start; gap:8px; padding:8px 10px; background:{{cardBg}}; border-radius:10px; margin-bottom:5px; border:1px solid {{border}}; cursor:grab; transition:box-shadow 0.15s,transform 0.15s,opacity 0.15s; opacity:{{task.itemOpacity}}" style-hover="box-shadow:0 2px 10px rgba(0,0,0,0.07); transform:translateY(-1px)">
+              <div data-taskid="{{task.id}}" onClick="{{onTaskToggle}}" style="flex-shrink:0; width:16px; height:16px; border-radius:50%; border:2px solid {{task.checkBorderColor}}; background:{{task.checkBg}}; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:2px; transition:all 0.18s">
+                <sc-if value="{{task.done}}" hint-placeholder-val="{{false}}"><span style="color:white; font-size:9px; font-weight:800; line-height:1">✓</span></sc-if>
+              </div>
+              <div style="flex-shrink:0; width:7px; height:7px; border-radius:50%; background:{{task.colorDot}}; margin-top:4px; transition:background 0.2s"></div>
+              <div style="flex:1; min-width:0">
+                <sc-if value="{{task.notEditing}}" hint-placeholder-val="{{true}}">
+                  <div data-taskid="{{task.id}}" onClick="{{onTaskLabelClick}}" style="cursor:text">
+                    <span style="font-size:12.5px; line-height:1.45; text-decoration:{{task.textDecoration}}; opacity:{{task.textOpacity}}; word-break:break-word; display:block">{{task.label}}</span>
+                    <sc-if value="{{task.hasDueDate}}" hint-placeholder-val="{{false}}">
+                      <div style="font-size:10.5px; color:{{task.overdueColor}}; margin-top:3px; display:flex; align-items:center; gap:3px">
+                        <span>📅</span><span>{{task.dueDateDisplay}}</span>
+                        <sc-if value="{{task.isOverdue}}" hint-placeholder-val="{{false}}"><span style="background:#b87a6a; color:white; font-size:9px; font-weight:700; padding:1px 5px; border-radius:4px; margin-left:2px">逾期</span></sc-if>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+                <sc-if value="{{task.isEditing}}" hint-placeholder-val="{{false}}">
+                  <div style="display:flex; flex-direction:column; gap:6px">
+                    <input value="{{editText}}" onChange="{{onEditTextChange}}" onKeyDown="{{onEditKeyDown}}" autoFocus="{{true}}" style="width:100%; border:1.5px solid #b09860; border-radius:7px; padding:6px 9px; font-size:12.5px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; box-sizing:border-box">
+                    <div style="display:flex; gap:5px; align-items:center">
+                      <input type="date" value="{{editDate}}" onChange="{{onEditDateChange}}" style="flex:1; border:1px solid {{border}}; border-radius:7px; padding:5px 7px; font-size:11px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; min-width:0">
+                      <button onClick="{{confirmEdit}}" style="background:#b09860; color:white; border:none; border-radius:7px; padding:5px 11px; font-size:11.5px; font-weight:600; cursor:pointer; font-family:inherit; flex-shrink:0">保存</button>
+                      <button onClick="{{cancelEdit}}" style="background:{{border}}; color:{{muted}}; border:none; border-radius:7px; padding:5px 8px; font-size:11.5px; cursor:pointer; font-family:inherit; flex-shrink:0">取消</button>
+                    </div>
+                    <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap">
+                      <span style="font-size:10.5px; color:{{muted}}; white-space:nowrap">标签色</span>
+                      <sc-for list="{{editSwatches}}" as="sw" hint-placeholder-count="10">
+                        <div data-color="{{sw.hex}}" onClick="{{onSwatchClickEdit}}" style="width:15px; height:15px; border-radius:50%; background:{{sw.hex}}; cursor:pointer; box-shadow:{{sw.ring}}; transition:transform 0.12s; flex-shrink:0" style-hover="transform:scale(1.2)"></div>
+                      </sc-for>
+                      <div onClick="{{clearEditColor}}" style="width:15px; height:15px; border-radius:50%; border:1.5px dashed {{muted}}; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0.5; flex-shrink:0" style-hover="opacity:1"><span style="font-size:9px; color:{{muted}}; line-height:1">×</span></div>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+              <button data-taskid="{{task.id}}" onClick="{{onTaskDelete}}" style="flex-shrink:0; background:none; border:none; cursor:pointer; color:{{muted}}; padding:1px 3px; font-size:15px; line-height:1; opacity:0.35; transition:all 0.15s" style-hover="opacity:1; color:#b09860">×</button>
+            </div>
+          </sc-for>
+          <sc-if value="{{q2Empty}}" hint-placeholder-val="{{false}}"><div style="text-align:center; padding:16px 0 6px; color:{{muted}}; font-size:11.5px; opacity:0.6">拖入或点击下方添加</div></sc-if>
+          <sc-if value="{{addingToQ2}}" hint-placeholder-val="{{false}}">
+            <div style="background:rgba(176,152,96,0.06); border-radius:10px; padding:9px; margin-top:4px; border:1px solid rgba(176,152,96,0.2)">
+              <input value="{{newText}}" onChange="{{onTextChange}}" onKeyDown="{{onKeyDown}}" placeholder="{{inputPlaceholder}}" autoFocus="{{true}}" style="width:100%; border:1.5px solid {{inputBorderColor}}; border-radius:7px; padding:7px 9px; font-size:12.5px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; animation:{{inputAnim}}; box-sizing:border-box">
+              <div style="display:flex; gap:5px; margin-top:6px; align-items:center">
+                <input type="date" value="{{newDate}}" onChange="{{onDateChange}}" style="flex:1; border:1px solid {{border}}; border-radius:7px; padding:5px 7px; font-size:11px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; min-width:0">
+                <button onClick="{{confirmAdd}}" style="background:#b09860; color:white; border:none; border-radius:7px; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; flex-shrink:0">添加</button>
+                <button onClick="{{cancelAdd}}" style="background:{{border}}; color:{{muted}}; border:none; border-radius:7px; padding:6px 8px; font-size:11.5px; cursor:pointer; font-family:inherit; flex-shrink:0">取消</button>
+              </div>
+              <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap; margin-top:6px">
+                <span style="font-size:10.5px; color:{{muted}}; white-space:nowrap">标签色</span>
+                <sc-for list="{{addSwatches}}" as="sw" hint-placeholder-count="10">
+                  <div data-color="{{sw.hex}}" onClick="{{onSwatchClickAdd}}" style="width:15px; height:15px; border-radius:50%; background:{{sw.hex}}; cursor:pointer; box-shadow:{{sw.ring}}; transition:transform 0.12s; flex-shrink:0" style-hover="transform:scale(1.2)"></div>
+                </sc-for>
+                <div onClick="{{clearAddColor}}" style="width:15px; height:15px; border-radius:50%; border:1.5px dashed {{muted}}; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0.5; flex-shrink:0" style-hover="opacity:1"><span style="font-size:9px; color:{{muted}}; line-height:1">×</span></div>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{notAddingToQ2}}" hint-placeholder-val="{{true}}">
+            <div onClick="{{startAddQ2}}" style="display:flex; align-items:center; gap:5px; padding:6px 7px; cursor:pointer; border-radius:7px; color:{{muted}}; font-size:12px; margin-top:2px; transition:all 0.15s" style-hover="color:#b09860; background:rgba(176,152,96,0.07)">
+              <span style="font-size:15px; font-weight:300; line-height:1">+</span><span>添加任务</span>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <!-- Q3 不重要·紧急 -->
+      <div onDragOver="{{onDragOverQ3}}" onDrop="{{onDropQ3}}" onDragLeave="{{onDragLeave}}" style="background:{{cardBg}}; border-radius:16px; display:flex; flex-direction:column; min-height:0; box-shadow:{{q3Shadow}}; transition:box-shadow 0.2s,background 0.3s,transform 0.15s; overflow:hidden" style-hover="transform:translateY(-2px)">
+        <div data-q="3" onClick="{{onGoQ}}" style="background:#9e8272; padding:10px 14px 9px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none">
+          <div style="display:flex; align-items:center; gap:6px">
+            <span style="font-size:14px; line-height:1">📤</span>
+            <span style="font-size:13px; font-weight:700; color:white">不重要 · 紧急</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px">
+            <div style="background:rgba(0,0,0,0.18); color:white; font-size:11px; font-weight:700; min-width:24px; height:24px; padding:0 6px; border-radius:12px; display:flex; align-items:center; justify-content:center">{{q3Count}}</div>
+            <span style="color:rgba(255,255,255,0.7); font-size:12px">↗</span>
+          </div>
+        </div>
+        <div data-q="3" onClick="{{onGoQBody}}" style="flex:1; overflow-y:auto; padding:8px; min-height:0; cursor:pointer">
+          <sc-for list="{{q3Tasks}}" as="task" hint-placeholder-count="2">
+            <div draggable="true" data-taskid="{{task.id}}" onDragStart="{{onTaskDragStart}}" onDragEnd="{{onTaskDragEnd}}" style="display:flex; align-items:flex-start; gap:8px; padding:8px 10px; background:{{cardBg}}; border-radius:10px; margin-bottom:5px; border:1px solid {{border}}; cursor:grab; transition:box-shadow 0.15s,transform 0.15s,opacity 0.15s; opacity:{{task.itemOpacity}}" style-hover="box-shadow:0 2px 10px rgba(0,0,0,0.07); transform:translateY(-1px)">
+              <div data-taskid="{{task.id}}" onClick="{{onTaskToggle}}" style="flex-shrink:0; width:16px; height:16px; border-radius:50%; border:2px solid {{task.checkBorderColor}}; background:{{task.checkBg}}; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:2px; transition:all 0.18s">
+                <sc-if value="{{task.done}}" hint-placeholder-val="{{false}}"><span style="color:white; font-size:9px; font-weight:800; line-height:1">✓</span></sc-if>
+              </div>
+              <div style="flex-shrink:0; width:7px; height:7px; border-radius:50%; background:{{task.colorDot}}; margin-top:4px; transition:background 0.2s"></div>
+              <div style="flex:1; min-width:0">
+                <sc-if value="{{task.notEditing}}" hint-placeholder-val="{{true}}">
+                  <div data-taskid="{{task.id}}" onClick="{{onTaskLabelClick}}" style="cursor:text">
+                    <span style="font-size:12.5px; line-height:1.45; text-decoration:{{task.textDecoration}}; opacity:{{task.textOpacity}}; word-break:break-word; display:block">{{task.label}}</span>
+                    <sc-if value="{{task.hasDueDate}}" hint-placeholder-val="{{false}}">
+                      <div style="font-size:10.5px; color:{{task.overdueColor}}; margin-top:3px; display:flex; align-items:center; gap:3px">
+                        <span>📅</span><span>{{task.dueDateDisplay}}</span>
+                        <sc-if value="{{task.isOverdue}}" hint-placeholder-val="{{false}}"><span style="background:#b87a6a; color:white; font-size:9px; font-weight:700; padding:1px 5px; border-radius:4px; margin-left:2px">逾期</span></sc-if>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+                <sc-if value="{{task.isEditing}}" hint-placeholder-val="{{false}}">
+                  <div style="display:flex; flex-direction:column; gap:6px">
+                    <input value="{{editText}}" onChange="{{onEditTextChange}}" onKeyDown="{{onEditKeyDown}}" autoFocus="{{true}}" style="width:100%; border:1.5px solid #9e8272; border-radius:7px; padding:6px 9px; font-size:12.5px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; box-sizing:border-box">
+                    <div style="display:flex; gap:5px; align-items:center">
+                      <input type="date" value="{{editDate}}" onChange="{{onEditDateChange}}" style="flex:1; border:1px solid {{border}}; border-radius:7px; padding:5px 7px; font-size:11px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; min-width:0">
+                      <button onClick="{{confirmEdit}}" style="background:#9e8272; color:white; border:none; border-radius:7px; padding:5px 11px; font-size:11.5px; font-weight:600; cursor:pointer; font-family:inherit; flex-shrink:0">保存</button>
+                      <button onClick="{{cancelEdit}}" style="background:{{border}}; color:{{muted}}; border:none; border-radius:7px; padding:5px 8px; font-size:11.5px; cursor:pointer; font-family:inherit; flex-shrink:0">取消</button>
+                    </div>
+                    <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap">
+                      <span style="font-size:10.5px; color:{{muted}}; white-space:nowrap">标签色</span>
+                      <sc-for list="{{editSwatches}}" as="sw" hint-placeholder-count="10">
+                        <div data-color="{{sw.hex}}" onClick="{{onSwatchClickEdit}}" style="width:15px; height:15px; border-radius:50%; background:{{sw.hex}}; cursor:pointer; box-shadow:{{sw.ring}}; transition:transform 0.12s; flex-shrink:0" style-hover="transform:scale(1.2)"></div>
+                      </sc-for>
+                      <div onClick="{{clearEditColor}}" style="width:15px; height:15px; border-radius:50%; border:1.5px dashed {{muted}}; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0.5; flex-shrink:0" style-hover="opacity:1"><span style="font-size:9px; color:{{muted}}; line-height:1">×</span></div>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+              <button data-taskid="{{task.id}}" onClick="{{onTaskDelete}}" style="flex-shrink:0; background:none; border:none; cursor:pointer; color:{{muted}}; padding:1px 3px; font-size:15px; line-height:1; opacity:0.35; transition:all 0.15s" style-hover="opacity:1; color:#9e8272">×</button>
+            </div>
+          </sc-for>
+          <sc-if value="{{q3Empty}}" hint-placeholder-val="{{false}}"><div style="text-align:center; padding:16px 0 6px; color:{{muted}}; font-size:11.5px; opacity:0.6">拖入或点击下方添加</div></sc-if>
+          <sc-if value="{{addingToQ3}}" hint-placeholder-val="{{false}}">
+            <div style="background:rgba(158,130,114,0.06); border-radius:10px; padding:9px; margin-top:4px; border:1px solid rgba(158,130,114,0.2)">
+              <input value="{{newText}}" onChange="{{onTextChange}}" onKeyDown="{{onKeyDown}}" placeholder="{{inputPlaceholder}}" autoFocus="{{true}}" style="width:100%; border:1.5px solid {{inputBorderColor}}; border-radius:7px; padding:7px 9px; font-size:12.5px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; animation:{{inputAnim}}; box-sizing:border-box">
+              <div style="display:flex; gap:5px; margin-top:6px; align-items:center">
+                <input type="date" value="{{newDate}}" onChange="{{onDateChange}}" style="flex:1; border:1px solid {{border}}; border-radius:7px; padding:5px 7px; font-size:11px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; min-width:0">
+                <button onClick="{{confirmAdd}}" style="background:#9e8272; color:white; border:none; border-radius:7px; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; flex-shrink:0">添加</button>
+                <button onClick="{{cancelAdd}}" style="background:{{border}}; color:{{muted}}; border:none; border-radius:7px; padding:6px 8px; font-size:11.5px; cursor:pointer; font-family:inherit; flex-shrink:0">取消</button>
+              </div>
+              <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap; margin-top:6px">
+                <span style="font-size:10.5px; color:{{muted}}; white-space:nowrap">标签色</span>
+                <sc-for list="{{addSwatches}}" as="sw" hint-placeholder-count="10">
+                  <div data-color="{{sw.hex}}" onClick="{{onSwatchClickAdd}}" style="width:15px; height:15px; border-radius:50%; background:{{sw.hex}}; cursor:pointer; box-shadow:{{sw.ring}}; transition:transform 0.12s; flex-shrink:0" style-hover="transform:scale(1.2)"></div>
+                </sc-for>
+                <div onClick="{{clearAddColor}}" style="width:15px; height:15px; border-radius:50%; border:1.5px dashed {{muted}}; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0.5; flex-shrink:0" style-hover="opacity:1"><span style="font-size:9px; color:{{muted}}; line-height:1">×</span></div>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{notAddingToQ3}}" hint-placeholder-val="{{true}}">
+            <div onClick="{{startAddQ3}}" style="display:flex; align-items:center; gap:5px; padding:6px 7px; cursor:pointer; border-radius:7px; color:{{muted}}; font-size:12px; margin-top:2px; transition:all 0.15s" style-hover="color:#9e8272; background:rgba(158,130,114,0.07)">
+              <span style="font-size:15px; font-weight:300; line-height:1">+</span><span>添加任务</span>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <!-- Q4 不重要·不紧急 -->
+      <div onDragOver="{{onDragOverQ4}}" onDrop="{{onDropQ4}}" onDragLeave="{{onDragLeave}}" style="background:{{cardBg}}; border-radius:16px; display:flex; flex-direction:column; min-height:0; box-shadow:{{q4Shadow}}; transition:box-shadow 0.2s,background 0.3s,transform 0.15s; overflow:hidden" style-hover="transform:translateY(-2px)">
+        <div data-q="4" onClick="{{onGoQ}}" style="background:#8aa685; padding:10px 14px 9px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none">
+          <div style="display:flex; align-items:center; gap:6px">
+            <span style="font-size:14px; line-height:1">💤</span>
+            <span style="font-size:13px; font-weight:700; color:white">不重要 · 不紧急</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px">
+            <div style="background:rgba(0,0,0,0.18); color:white; font-size:11px; font-weight:700; min-width:24px; height:24px; padding:0 6px; border-radius:12px; display:flex; align-items:center; justify-content:center">{{q4Count}}</div>
+            <span style="color:rgba(255,255,255,0.7); font-size:12px">↗</span>
+          </div>
+        </div>
+        <div data-q="4" onClick="{{onGoQBody}}" style="flex:1; overflow-y:auto; padding:8px; min-height:0; cursor:pointer">
+          <sc-for list="{{q4Tasks}}" as="task" hint-placeholder-count="2">
+            <div draggable="true" data-taskid="{{task.id}}" onDragStart="{{onTaskDragStart}}" onDragEnd="{{onTaskDragEnd}}" style="display:flex; align-items:flex-start; gap:8px; padding:8px 10px; background:{{cardBg}}; border-radius:10px; margin-bottom:5px; border:1px solid {{border}}; cursor:grab; transition:box-shadow 0.15s,transform 0.15s,opacity 0.15s; opacity:{{task.itemOpacity}}" style-hover="box-shadow:0 2px 10px rgba(0,0,0,0.07); transform:translateY(-1px)">
+              <div data-taskid="{{task.id}}" onClick="{{onTaskToggle}}" style="flex-shrink:0; width:16px; height:16px; border-radius:50%; border:2px solid {{task.checkBorderColor}}; background:{{task.checkBg}}; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:2px; transition:all 0.18s">
+                <sc-if value="{{task.done}}" hint-placeholder-val="{{false}}"><span style="color:white; font-size:9px; font-weight:800; line-height:1">✓</span></sc-if>
+              </div>
+              <div style="flex-shrink:0; width:7px; height:7px; border-radius:50%; background:{{task.colorDot}}; margin-top:4px; transition:background 0.2s"></div>
+              <div style="flex:1; min-width:0">
+                <sc-if value="{{task.notEditing}}" hint-placeholder-val="{{true}}">
+                  <div data-taskid="{{task.id}}" onClick="{{onTaskLabelClick}}" style="cursor:text">
+                    <span style="font-size:12.5px; line-height:1.45; text-decoration:{{task.textDecoration}}; opacity:{{task.textOpacity}}; word-break:break-word; display:block">{{task.label}}</span>
+                    <sc-if value="{{task.hasDueDate}}" hint-placeholder-val="{{false}}">
+                      <div style="font-size:10.5px; color:{{task.overdueColor}}; margin-top:3px; display:flex; align-items:center; gap:3px">
+                        <span>📅</span><span>{{task.dueDateDisplay}}</span>
+                        <sc-if value="{{task.isOverdue}}" hint-placeholder-val="{{false}}"><span style="background:#b87a6a; color:white; font-size:9px; font-weight:700; padding:1px 5px; border-radius:4px; margin-left:2px">逾期</span></sc-if>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+                <sc-if value="{{task.isEditing}}" hint-placeholder-val="{{false}}">
+                  <div style="display:flex; flex-direction:column; gap:6px">
+                    <input value="{{editText}}" onChange="{{onEditTextChange}}" onKeyDown="{{onEditKeyDown}}" autoFocus="{{true}}" style="width:100%; border:1.5px solid #8aa685; border-radius:7px; padding:6px 9px; font-size:12.5px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; box-sizing:border-box">
+                    <div style="display:flex; gap:5px; align-items:center">
+                      <input type="date" value="{{editDate}}" onChange="{{onEditDateChange}}" style="flex:1; border:1px solid {{border}}; border-radius:7px; padding:5px 7px; font-size:11px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; min-width:0">
+                      <button onClick="{{confirmEdit}}" style="background:#8aa685; color:white; border:none; border-radius:7px; padding:5px 11px; font-size:11.5px; font-weight:600; cursor:pointer; font-family:inherit; flex-shrink:0">保存</button>
+                      <button onClick="{{cancelEdit}}" style="background:{{border}}; color:{{muted}}; border:none; border-radius:7px; padding:5px 8px; font-size:11.5px; cursor:pointer; font-family:inherit; flex-shrink:0">取消</button>
+                    </div>
+                    <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap">
+                      <span style="font-size:10.5px; color:{{muted}}; white-space:nowrap">标签色</span>
+                      <sc-for list="{{editSwatches}}" as="sw" hint-placeholder-count="10">
+                        <div data-color="{{sw.hex}}" onClick="{{onSwatchClickEdit}}" style="width:15px; height:15px; border-radius:50%; background:{{sw.hex}}; cursor:pointer; box-shadow:{{sw.ring}}; transition:transform 0.12s; flex-shrink:0" style-hover="transform:scale(1.2)"></div>
+                      </sc-for>
+                      <div onClick="{{clearEditColor}}" style="width:15px; height:15px; border-radius:50%; border:1.5px dashed {{muted}}; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0.5; flex-shrink:0" style-hover="opacity:1"><span style="font-size:9px; color:{{muted}}; line-height:1">×</span></div>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+              <button data-taskid="{{task.id}}" onClick="{{onTaskDelete}}" style="flex-shrink:0; background:none; border:none; cursor:pointer; color:{{muted}}; padding:1px 3px; font-size:15px; line-height:1; opacity:0.35; transition:all 0.15s" style-hover="opacity:1; color:#8aa685">×</button>
+            </div>
+          </sc-for>
+          <sc-if value="{{q4Empty}}" hint-placeholder-val="{{false}}"><div style="text-align:center; padding:16px 0 6px; color:{{muted}}; font-size:11.5px; opacity:0.6">拖入或点击下方添加</div></sc-if>
+          <sc-if value="{{addingToQ4}}" hint-placeholder-val="{{false}}">
+            <div style="background:rgba(138,166,133,0.06); border-radius:10px; padding:9px; margin-top:4px; border:1px solid rgba(138,166,133,0.2)">
+              <input value="{{newText}}" onChange="{{onTextChange}}" onKeyDown="{{onKeyDown}}" placeholder="{{inputPlaceholder}}" autoFocus="{{true}}" style="width:100%; border:1.5px solid {{inputBorderColor}}; border-radius:7px; padding:7px 9px; font-size:12.5px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; animation:{{inputAnim}}; box-sizing:border-box">
+              <div style="display:flex; gap:5px; margin-top:6px; align-items:center">
+                <input type="date" value="{{newDate}}" onChange="{{onDateChange}}" style="flex:1; border:1px solid {{border}}; border-radius:7px; padding:5px 7px; font-size:11px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; min-width:0">
+                <button onClick="{{confirmAdd}}" style="background:#8aa685; color:white; border:none; border-radius:7px; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; flex-shrink:0">添加</button>
+                <button onClick="{{cancelAdd}}" style="background:{{border}}; color:{{muted}}; border:none; border-radius:7px; padding:6px 8px; font-size:11.5px; cursor:pointer; font-family:inherit; flex-shrink:0">取消</button>
+              </div>
+              <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap; margin-top:6px">
+                <span style="font-size:10.5px; color:{{muted}}; white-space:nowrap">标签色</span>
+                <sc-for list="{{addSwatches}}" as="sw" hint-placeholder-count="10">
+                  <div data-color="{{sw.hex}}" onClick="{{onSwatchClickAdd}}" style="width:15px; height:15px; border-radius:50%; background:{{sw.hex}}; cursor:pointer; box-shadow:{{sw.ring}}; transition:transform 0.12s; flex-shrink:0" style-hover="transform:scale(1.2)"></div>
+                </sc-for>
+                <div onClick="{{clearAddColor}}" style="width:15px; height:15px; border-radius:50%; border:1.5px dashed {{muted}}; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0.5; flex-shrink:0" style-hover="opacity:1"><span style="font-size:9px; color:{{muted}}; line-height:1">×</span></div>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{notAddingToQ4}}" hint-placeholder-val="{{true}}">
+            <div onClick="{{startAddQ4}}" style="display:flex; align-items:center; gap:5px; padding:6px 7px; cursor:pointer; border-radius:7px; color:{{muted}}; font-size:12px; margin-top:2px; transition:all 0.15s" style-hover="color:#8aa685; background:rgba(138,166,133,0.07)">
+              <span style="font-size:15px; font-weight:300; line-height:1">+</span><span>添加任务</span>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+    </div>
+  </sc-if>
+
+  <!-- ══ FOCUS VIEW: single quadrant fullscreen ══ -->
+  <sc-if value="{{isFocusView}}" hint-placeholder-val="{{false}}">
+    <div onDragOver="{{onDragOverAQ}}" onDrop="{{onDropAQ}}" onDragLeave="{{onDragLeave}}" style="flex:1; margin:10px; background:{{cardBg}}; border-radius:16px; display:flex; flex-direction:column; min-height:0; box-shadow:{{aqShadow}}; transition:box-shadow 0.2s,background 0.3s; overflow:hidden; animation:fadeUp 0.25s cubic-bezier(0.22,1,0.36,1)">
+      <!-- Focus header -->
+      <div style="background:{{aqColor}}; padding:12px 16px 11px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between">
+        <div style="display:flex; align-items:center; gap:7px">
+          <span style="font-size:16px; line-height:1">{{aqEmoji}}</span>
+          <span style="font-size:14px; font-weight:700; color:white">{{aqLabel}}</span>
+        </div>
+        <div style="background:rgba(0,0,0,0.18); color:white; font-size:12px; font-weight:700; min-width:26px; height:26px; padding:0 7px; border-radius:13px; display:flex; align-items:center; justify-content:center">{{aqCount}}</div>
+      </div>
+      <!-- Task list -->
+      <div onClick="{{onFocusBodyBack}}" style="flex:1; overflow-y:auto; padding:10px; min-height:0; cursor:default">
+        <sc-for list="{{aqTasks}}" as="task" hint-placeholder-count="3">
+          <div draggable="true" data-taskid="{{task.id}}" onDragStart="{{onTaskDragStart}}" onDragEnd="{{onTaskDragEnd}}" style="display:flex; align-items:flex-start; gap:9px; padding:10px 12px; background:{{cardBg}}; border-radius:11px; margin-bottom:6px; border:1px solid {{border}}; cursor:grab; transition:box-shadow 0.15s,transform 0.15s,opacity 0.15s; opacity:{{task.itemOpacity}}" style-hover="box-shadow:0 3px 14px rgba(0,0,0,0.08); transform:translateY(-1px)">
+            <div data-taskid="{{task.id}}" onClick="{{onTaskToggle}}" style="flex-shrink:0; width:18px; height:18px; border-radius:50%; border:2px solid {{task.checkBorderColor}}; background:{{task.checkBg}}; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:2px; transition:all 0.18s">
+              <sc-if value="{{task.done}}" hint-placeholder-val="{{false}}"><span style="color:white; font-size:10px; font-weight:800; line-height:1">✓</span></sc-if>
+            </div>
+            <div style="flex-shrink:0; width:8px; height:8px; border-radius:50%; background:{{task.colorDot}}; margin-top:5px; transition:background 0.2s"></div>
+            <div style="flex:1; min-width:0">
+              <sc-if value="{{task.notEditing}}" hint-placeholder-val="{{true}}">
+                <div data-taskid="{{task.id}}" onClick="{{onTaskLabelClick}}" style="cursor:text">
+                  <span style="font-size:13.5px; line-height:1.5; text-decoration:{{task.textDecoration}}; opacity:{{task.textOpacity}}; word-break:break-word; display:block">{{task.label}}</span>
+                  <sc-if value="{{task.hasDueDate}}" hint-placeholder-val="{{false}}">
+                    <div style="font-size:11px; color:{{task.overdueColor}}; margin-top:3px; display:flex; align-items:center; gap:3px">
+                      <span>📅</span><span>{{task.dueDateDisplay}}</span>
+                      <sc-if value="{{task.isOverdue}}" hint-placeholder-val="{{false}}"><span style="background:#b87a6a; color:white; font-size:9px; font-weight:700; padding:1px 5px; border-radius:4px; margin-left:2px">逾期</span></sc-if>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
+              <sc-if value="{{task.isEditing}}" hint-placeholder-val="{{false}}">
+                <div style="display:flex; flex-direction:column; gap:7px">
+                  <input value="{{editText}}" onChange="{{onEditTextChange}}" onKeyDown="{{onEditKeyDown}}" autoFocus="{{true}}" style="width:100%; border:1.5px solid {{task.qColor}}; border-radius:8px; padding:8px 11px; font-size:13.5px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; box-sizing:border-box">
+                  <div style="display:flex; gap:6px; align-items:center">
+                    <input type="date" value="{{editDate}}" onChange="{{onEditDateChange}}" style="flex:1; border:1px solid {{border}}; border-radius:8px; padding:6px 9px; font-size:12px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; min-width:0">
+                    <button onClick="{{confirmEdit}}" style="background:{{task.qColor}}; color:white; border:none; border-radius:8px; padding:6px 13px; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; flex-shrink:0">保存</button>
+                    <button onClick="{{cancelEdit}}" style="background:{{border}}; color:{{muted}}; border:none; border-radius:8px; padding:6px 10px; font-size:12.5px; cursor:pointer; font-family:inherit; flex-shrink:0">取消</button>
+                  </div>
+                  <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap">
+                    <span style="font-size:11px; color:{{muted}}; white-space:nowrap">标签色</span>
+                    <sc-for list="{{editSwatches}}" as="sw" hint-placeholder-count="10">
+                      <div data-color="{{sw.hex}}" onClick="{{onSwatchClickEdit}}" style="width:16px; height:16px; border-radius:50%; background:{{sw.hex}}; cursor:pointer; box-shadow:{{sw.ring}}; transition:transform 0.12s; flex-shrink:0" style-hover="transform:scale(1.2)"></div>
+                    </sc-for>
+                    <div onClick="{{clearEditColor}}" style="width:16px; height:16px; border-radius:50%; border:1.5px dashed {{muted}}; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0.5; flex-shrink:0" style-hover="opacity:1"><span style="font-size:9px; color:{{muted}}; line-height:1">×</span></div>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+            <button data-taskid="{{task.id}}" onClick="{{onTaskDelete}}" style="flex-shrink:0; background:none; border:none; cursor:pointer; color:{{muted}}; padding:2px 4px; font-size:16px; line-height:1; opacity:0.35; transition:all 0.15s" style-hover="opacity:1; color:{{aqColor}}">×</button>
+          </div>
+        </sc-for>
+        <sc-if value="{{aqEmpty}}" hint-placeholder-val="{{false}}"><div style="text-align:center; padding:36px 0 8px; color:{{muted}}; font-size:12.5px; opacity:0.55">点击下方添加第一个任务</div></sc-if>
+        <sc-if value="{{addingToAQ}}" hint-placeholder-val="{{false}}">
+          <div style="background:{{aqFormBg}}; border-radius:11px; padding:10px; margin-top:6px; border:1px solid {{aqFormBorder}}">
+            <input value="{{newText}}" onChange="{{onTextChange}}" onKeyDown="{{onKeyDown}}" placeholder="{{inputPlaceholder}}" autoFocus="{{true}}" style="width:100%; border:1.5px solid {{inputBorderColor}}; border-radius:8px; padding:8px 11px; font-size:13.5px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; animation:{{inputAnim}}; box-sizing:border-box">
+            <div style="display:flex; gap:6px; margin-top:8px; align-items:center">
+              <input type="date" value="{{newDate}}" onChange="{{onDateChange}}" style="flex:1; border:1px solid {{border}}; border-radius:8px; padding:6px 9px; font-size:12px; background:{{inputBg}}; color:{{fg}}; outline:none; font-family:inherit; min-width:0">
+              <button onClick="{{confirmAdd}}" style="background:{{aqColor}}; color:white; border:none; border-radius:8px; padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; flex-shrink:0">添加</button>
+              <button onClick="{{cancelAdd}}" style="background:{{border}}; color:{{muted}}; border:none; border-radius:8px; padding:7px 10px; font-size:12.5px; cursor:pointer; font-family:inherit; flex-shrink:0">取消</button>
+            </div>
+            <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap; margin-top:7px">
+              <span style="font-size:11px; color:{{muted}}; white-space:nowrap">标签色</span>
+              <sc-for list="{{addSwatches}}" as="sw" hint-placeholder-count="10">
+                <div data-color="{{sw.hex}}" onClick="{{onSwatchClickAdd}}" style="width:16px; height:16px; border-radius:50%; background:{{sw.hex}}; cursor:pointer; box-shadow:{{sw.ring}}; transition:transform 0.12s; flex-shrink:0" style-hover="transform:scale(1.2)"></div>
+              </sc-for>
+              <div onClick="{{clearAddColor}}" style="width:16px; height:16px; border-radius:50%; border:1.5px dashed {{muted}}; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0.5; flex-shrink:0" style-hover="opacity:1"><span style="font-size:9px; color:{{muted}}; line-height:1">×</span></div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{notAddingToAQ}}" hint-placeholder-val="{{true}}">
+          <div onClick="{{startAddAQ}}" style="display:flex; align-items:center; gap:6px; padding:8px 9px; cursor:pointer; border-radius:8px; color:{{muted}}; font-size:13px; margin-top:3px; transition:all 0.15s" style-hover="color:{{aqColor}}; background:{{aqHoverBg}}">
+            <span style="font-size:17px; font-weight:300; line-height:1">+</span><span>添加任务</span>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    darkMode: false,
+    activeQ: null,
+    tasks: [
+      { id:1,  text:'❄️ 三',                                            quadrant:1, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:2,  text:'Checkin with Yang Han (Oops, I Disappeared)',       quadrant:1, done:true,  dueDate:'', completedAt:'2026-06-15', color:null },
+      { id:3,  text:'Checkin with Kuma (HSBC)',                          quadrant:1, done:true,  dueDate:'', completedAt:'2026-06-15', color:null },
+      { id:4,  text:'Contact Selina',                                    quadrant:1, done:true,  dueDate:'', completedAt:'2026-06-15', color:null },
+      { id:5,  text:'USCIS Checkin',                                     quadrant:1, done:true,  dueDate:'', completedAt:'2026-06-15', color:null },
+      { id:6,  text:'Watch Submarine',                                   quadrant:2, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:7,  text:'Watch Frances Ha',                                  quadrant:2, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:8,  text:'Osprey Olives Launch Publish',                      quadrant:2, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:9,  text:'Til Death Do Us Part Color Fix',                    quadrant:2, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:10, text:'Rolling Forever Select',                            quadrant:2, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:11, text:'Bring Me Back My Hope Select',                      quadrant:2, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:12, text:'Checkin with John Cherry (Waggey Land)',            quadrant:2, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:13, text:'Backup Replaced Export',                            quadrant:2, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:14, text:'Vagrants Emerson Aluminum Reachout (Lennon Mapes)', quadrant:2, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:15, text:'Qazi Colorgrading Class',                           quadrant:2, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:16, text:'Carwash',                                           quadrant:3, done:false, dueDate:'', completedAt:null,         color:'#c4aa84' },
+      { id:17, text:'Zhuo Zi Color',                                     quadrant:4, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:18, text:'The Grapes of Wrath Color',                         quadrant:4, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:19, text:'Move In Color',                                     quadrant:4, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:20, text:'Mother Lion Color',                                 quadrant:4, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:21, text:'Limerick Color',                                    quadrant:4, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:22, text:'Lugu Lugu Kan-Ibi Color',                           quadrant:4, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:23, text:'The Panther Color',                                 quadrant:4, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:24, text:'Photo Album Cleaning',                              quadrant:4, done:false, dueDate:'', completedAt:null,         color:null },
+      { id:25, text:'To do App Editing',                                 quadrant:4, done:false, dueDate:'', completedAt:null,         color:null },
+    ],
+    nextId: 26,
+    addingTo: null,
+    newText: '', newDate: '', newColor: null,
+    draggingOver: null, activeDragId: null,
+    inputError: false,
+    editingId: null, editText: '', editDate: '', editColor: null,
+  };
+
+  MORANDI = ['#c4908a','#a4b89a','#90a8ba','#c4aa84','#a898c0','#88a8a4','#c8a4a0','#a8a880','#b494a8','#c09080'];
+  Q_COLORS = { 1:'#b87a6a', 2:'#b09860', 3:'#9e8272', 4:'#8aa685' };
+  Q_EMOJIS = { 1:'🚨', 2:'🎯', 3:'📤', 4:'💤' };
+  Q_LABELS = { 1:'重要 · 紧急', 2:'重要 · 不紧急', 3:'不重要 · 紧急', 4:'不重要 · 不紧急' };
+  Q_RGBS   = { 1:'184,122,106', 2:'176,152,96', 3:'158,130,114', 4:'138,166,133' };
+
+  _ct = null; _cdm = null; _caid = null; _ceid = null;
+  _q1 = []; _q2 = []; _q3 = []; _q4 = [];
+  _doneCount = 0; _total = 0;
+
+  toggleDark = () => this.setState(s => ({ darkMode: !s.darkMode }));
+  goMain = () => this.setState({ activeQ: null, addingTo: null, editingId: null });
+  onGoQ  = (e) => { const q = parseInt((e.currentTarget||e.target).getAttribute('data-q')); if (!isNaN(q)) this.setState({ activeQ: q, addingTo: null, editingId: null }); };
+  // Only fires when clicking blank padding area (not on child task elements)
+  onGoQBody = (e) => { if (e.target === e.currentTarget) { const q = parseInt(e.currentTarget.getAttribute('data-q')); if (!isNaN(q)) this.setState({ activeQ: q, addingTo: null, editingId: null }); } };
+  onFocusBodyBack = (e) => { if (e.target === e.currentTarget) this.setState({ activeQ: null, addingTo: null, editingId: null }); };
+
+  onSwatchClickEdit = (e) => { const h=(e.currentTarget||e.target).getAttribute('data-color'); if (h) this.setState(s=>({editColor:s.editColor===h?null:h})); };
+  onSwatchClickAdd  = (e) => { const h=(e.currentTarget||e.target).getAttribute('data-color'); if (h) this.setState(s=>({newColor:s.newColor===h?null:h})); };
+  clearEditColor = () => this.setState({ editColor: null });
+  clearAddColor  = () => this.setState({ newColor: null });
+
+  onExportSummary = () => {
+    try {
+      const raw = localStorage.getItem('quadrant-matrix-v1');
+      const data = raw ? JSON.parse(raw) : { tasks: this.state.tasks };
+      const tasks = Array.isArray(data.tasks) ? data.tasks : this.state.tasks;
+      const today = new Date(); today.setHours(0,0,0,0);
+      const fmt = (s) => { if (!s) return ''; const d=new Date(s+'T00:00:00'); return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`; };
+      const qInfo = {1:{label:'重要·紧急'},2:{label:'重要·不紧急'},3:{label:'不重要·紧急'},4:{label:'不重要·不紧急'}};
+      const now = new Date();
+      let text = `四象限任务清单 · 导出于 ${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日\n${'─'.repeat(36)}\n\n【未完成任务】\n\n`;
+      for (let q=1;q<=4;q++) {
+        const qTasks = tasks.filter(t=>t.quadrant===q&&!t.done);
+        text += `${qInfo[q].label}\n`;
+        if (!qTasks.length) text += '  （无任务）\n';
+        else for (const t of qTasks) { const ov=t.dueDate&&new Date(t.dueDate+'T00:00:00')<today; text+=`  • ${t.text}${t.dueDate?` | 截止 ${fmt(t.dueDate)}${ov?' [逾期]':''}`:'（无截止日期）'}\n`; }
+        text += '\n';
+      }
+      const done = tasks.filter(t=>t.done);
+      text += `${'─'.repeat(36)}\n\n【已完成任务】\n\n`;
+      if (!done.length) text += '  （无已完成任务）\n';
+      else for (const t of done) { const qi=qInfo[t.quadrant]||qInfo[1]; text+=`  ✓ ${t.text} [${qi.label}]${t.completedAt?` | 完成于 ${fmt(t.completedAt)}`:''}${t.dueDate?` | 原截止 ${fmt(t.dueDate)}`:''}\n`; }
+      text += `\n${'─'.repeat(36)}\n共 ${tasks.filter(t=>!t.done).length} 项未完成，${done.length} 项已完成\n`;
+      const blob=new Blob([text],{type:'text/plain;charset=utf-8'}); const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download=`任务摘要-${new Date().toISOString().split('T')[0]}.txt`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    } catch(e) {}
+  };
+
+  onExportClick = () => {
+    try {
+      const raw=localStorage.getItem('quadrant-matrix-v1');
+      const data=raw?JSON.parse(raw):{tasks:this.state.tasks,nextId:this.state.nextId,darkMode:this.state.darkMode};
+      const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download=`todo-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    } catch(e) {}
+  };
+
+  onImport = (e) => {
+    const file=e.target.files[0]; if(!file) return;
+    const reader=new FileReader();
+    reader.onload=(ev)=>{ try { const d=JSON.parse(ev.target.result); if(d&&Array.isArray(d.tasks)){localStorage.setItem('quadrant-matrix-v1',JSON.stringify(d)); if(this._mounted) this.setState({tasks:d.tasks,nextId:d.nextId||this.state.nextId,darkMode:typeof d.darkMode==='boolean'?d.darkMode:this.state.darkMode}); } } catch(e){} e.target.value=''; };
+    reader.readAsText(file);
+  };
+
+  onTaskDragStart = (e) => { const id=parseInt((e.currentTarget||e.target).getAttribute('data-taskid')); if(!isNaN(id)){e.dataTransfer.setData('text/plain',String(id)); this.setState({activeDragId:id});} };
+  onTaskDragEnd   = () => this.setState({activeDragId:null,draggingOver:null});
+  onTaskToggle    = (e) => { const id=parseInt((e.currentTarget||e.target).getAttribute('data-taskid')); if(!isNaN(id)) this.setState(s=>({tasks:s.tasks.map(x=>x.id!==id?x:{...x,done:!x.done,completedAt:!x.done?new Date().toISOString().split('T')[0]:null})})); };
+  onTaskDelete    = (e) => { e.stopPropagation(); const id=parseInt((e.currentTarget||e.target).getAttribute('data-taskid')); if(!isNaN(id)) this.setState(s=>({tasks:s.tasks.filter(x=>x.id!==id)})); };
+  onTaskLabelClick= (e) => { const id=parseInt((e.currentTarget||e.target).getAttribute('data-taskid')); if(!isNaN(id)){const t=this.state.tasks.find(t=>t.id===id); if(t) this.setState({editingId:id,editText:t.text,editDate:t.dueDate||'',editColor:t.color||null});} };
+  confirmEdit = () => { const{editingId,editText,editDate,editColor}=this.state; if(!editText.trim()) return; this.setState(s=>({tasks:s.tasks.map(t=>t.id===editingId?{...t,text:editText.trim(),dueDate:editDate,color:editColor}:t),editingId:null,editText:'',editDate:'',editColor:null})); };
+  cancelEdit       = () => this.setState({editingId:null,editText:'',editDate:'',editColor:null});
+  onEditTextChange = (e) => this.setState({editText:e.target.value});
+  onEditDateChange = (e) => this.setState({editDate:e.target.value});
+  onEditKeyDown    = (e) => { if(e.key==='Enter') this.confirmEdit(); else if(e.key==='Escape') this.cancelEdit(); };
+
+  startAddQ1 = () => this.setState({addingTo:1,newText:'',newDate:'',newColor:null,inputError:false});
+  startAddQ2 = () => this.setState({addingTo:2,newText:'',newDate:'',newColor:null,inputError:false});
+  startAddQ3 = () => this.setState({addingTo:3,newText:'',newDate:'',newColor:null,inputError:false});
+  startAddQ4 = () => this.setState({addingTo:4,newText:'',newDate:'',newColor:null,inputError:false});
+  cancelAdd  = () => this.setState({addingTo:null,inputError:false,newColor:null});
+  confirmAdd = () => {
+    if(!this.state.newText.trim()){this.setState({inputError:true}); clearTimeout(this._errTimer); this._errTimer=setTimeout(()=>{if(this._mounted)this.setState({inputError:false});},900); return;}
+    this.setState(s=>({tasks:[...s.tasks,{id:s.nextId,text:s.newText.trim(),quadrant:s.addingTo,done:false,dueDate:s.newDate,completedAt:null,color:s.newColor}],nextId:s.nextId+1,addingTo:null,newText:'',newDate:'',newColor:null,inputError:false}));
+  };
+  onTextChange = (e) => this.setState({newText:e.target.value,inputError:false});
+  onDateChange = (e) => this.setState({newDate:e.target.value});
+  onKeyDown    = (e) => { if(e.key==='Enter') this.confirmAdd(); else if(e.key==='Escape') this.cancelAdd(); };
+
+  onDragLeave = (e) => { if(!e.relatedTarget||!e.currentTarget.contains(e.relatedTarget)) this.setState({draggingOver:null}); };
+  _doDrop=(q,e)=>{ e.preventDefault(); const id=parseInt(e.dataTransfer.getData('text/plain')); if(!isNaN(id)) this.setState(s=>({tasks:s.tasks.map(t=>t.id===id?{...t,quadrant:q}:t),draggingOver:null,activeDragId:null})); };
+  _doOver=(q,e)=>{ e.preventDefault(); if(this.state.draggingOver!==q) this.setState({draggingOver:q}); };
+  onDropQ1=(e)=>this._doDrop(1,e); onDropQ2=(e)=>this._doDrop(2,e); onDropQ3=(e)=>this._doDrop(3,e); onDropQ4=(e)=>this._doDrop(4,e);
+  onDragOverQ1=(e)=>this._doOver(1,e); onDragOverQ2=(e)=>this._doOver(2,e); onDragOverQ3=(e)=>this._doOver(3,e); onDragOverQ4=(e)=>this._doOver(4,e);
+
+  componentDidMount() {
+    this._mounted=true;
+    try {
+      const d=JSON.parse(localStorage.getItem('quadrant-matrix-v1')||'null');
+      if(d) this.setState({tasks:Array.isArray(d.tasks)?d.tasks:this.state.tasks,nextId:d.nextId||this.state.nextId,darkMode:typeof d.darkMode==='boolean'?d.darkMode:false});
+      else localStorage.setItem('quadrant-matrix-v1',JSON.stringify({tasks:this.state.tasks,nextId:this.state.nextId,darkMode:this.state.darkMode}));
+    } catch(e){}
+  }
+  componentWillUnmount() { this._mounted=false; clearTimeout(this._errTimer); }
+  componentDidUpdate(pp,ps) {
+    if(!ps) return;
+    const{tasks,nextId,darkMode}=this.state;
+    if(ps.tasks!==tasks||ps.nextId!==nextId||ps.darkMode!==darkMode) try{localStorage.setItem('quadrant-matrix-v1',JSON.stringify({tasks,nextId,darkMode}));}catch(e){}
+  }
+
+  fmt(s){if(!s) return ''; const d=new Date(s+'T00:00:00'); return `${d.getMonth()+1}月${d.getDate()}日`;}
+
+  _buildTasks(tasks,darkMode,activeDragId,editingId){
+    if(tasks===this._ct&&darkMode===this._cdm&&activeDragId===this._caid&&editingId===this._ceid) return;
+    const muted=darkMode?'#7a6e68':'#9e908a';
+    const today=new Date(); today.setHours(0,0,0,0);
+    const mk=(t)=>{ const ov=!!(t.dueDate&&!t.done&&new Date(t.dueDate+'T00:00:00')<today); const editing=editingId===t.id; return {id:t.id,label:t.text,done:t.done,itemOpacity:activeDragId===t.id?'0.28':'1',textDecoration:t.done?'line-through':'none',textOpacity:t.done?'0.4':'1',checkBg:t.done?'#8aa685':'transparent',checkBorderColor:t.done?'#8aa685':(darkMode?'#4a3a34':'#d4cbc5'),hasDueDate:!!t.dueDate,dueDateDisplay:this.fmt(t.dueDate),isOverdue:ov,overdueColor:ov?'#b87a6a':muted,isEditing:editing,notEditing:!editing,qColor:this.Q_COLORS[t.quadrant]||'#b87a6a',colorDot:t.color||'transparent'}; };
+    this._q1=tasks.filter(t=>t.quadrant===1).map(mk);
+    this._q2=tasks.filter(t=>t.quadrant===2).map(mk);
+    this._q3=tasks.filter(t=>t.quadrant===3).map(mk);
+    this._q4=tasks.filter(t=>t.quadrant===4).map(mk);
+    this._doneCount=tasks.filter(t=>t.done).length;
+    this._total=tasks.length;
+    this._ct=tasks; this._cdm=darkMode; this._caid=activeDragId; this._ceid=editingId;
+  }
+
+  renderVals(){
+    const{tasks,darkMode,activeQ,addingTo,newText,newDate,newColor,draggingOver,activeDragId,inputError,editingId,editText,editDate,editColor}=this.state;
+
+    const bg      = darkMode?'#1a1714':'#f0ece7';
+    const cardBg  = darkMode?'#221e1b':'#faf8f5';
+    const fg      = darkMode?'#f0e8e0':'#3d3330';
+    const muted   = darkMode?'#7a6e68':'#9e908a';
+    const border  = darkMode?'#2e2824':'#e0d6ce';
+    const inputBg = darkMode?'#2a2420':'#f5f1ec';
+
+    this._buildTasks(tasks,darkMode,activeDragId,editingId);
+    const done=this._doneCount, total=this._total;
+    const pct=total>0?Math.round(done/total*100):0;
+
+    // Navigation
+    const isMainView  = activeQ===null;
+    const isFocusView = activeQ!==null;
+    const dotOp = (q) => isMainView ? '0.5' : (activeQ===q ? '1' : '0.2');
+
+    // Focus quadrant data
+    const aqColor    = activeQ ? this.Q_COLORS[activeQ] : '#b87a6a';
+    const aqEmoji    = activeQ ? this.Q_EMOJIS[activeQ] : '';
+    const aqLabel    = activeQ ? this.Q_LABELS[activeQ] : '';
+    const aqTasksArr = activeQ ? (this['_q'+activeQ]||[]) : [];
+    const aqCount    = aqTasksArr.length;
+    const aqRgb      = activeQ ? this.Q_RGBS[activeQ] : '184,122,106';
+    const aqFormBg   = `rgba(${aqRgb},0.06)`;
+    const aqFormBorder = `rgba(${aqRgb},0.2)`;
+    const aqHoverBg  = `rgba(${aqRgb},0.07)`;
+    const addingToAQ  = addingTo===activeQ;
+    const startAddMap = {1:()=>this.startAddQ1(),2:()=>this.startAddQ2(),3:()=>this.startAddQ3(),4:()=>this.startAddQ4()};
+    const dropMap     = {1:this.onDropQ1,2:this.onDropQ2,3:this.onDropQ3,4:this.onDropQ4};
+    const overMap     = {1:this.onDragOverQ1,2:this.onDragOverQ2,3:this.onDragOverQ3,4:this.onDragOverQ4};
+
+    const qColor = this.Q_COLORS;
+    const inputBorderColor = inputError?'#b87a6a':(qColor[addingTo]||'#b87a6a');
+    const mkShadow=(q,c)=>draggingOver===q?`0 0 0 2px ${c}, 0 4px 16px rgba(0,0,0,0.1)`:'0 1px 4px rgba(0,0,0,0.05)';
+    const mkSwatches=(sel)=>this.MORANDI.map(hex=>({hex,ring:sel===hex?`0 0 0 2px ${cardBg}, 0 0 0 3.5px ${hex}`:'none'}));
+
+    return {
+      bg,cardBg,fg,muted,border,inputBg,
+      darkIcon:darkMode?'☀️':'🌙',
+      darkBtnBg:darkMode?'#2a2320':'#ece8e3',
+      doneNavBg:darkMode?'rgba(138,166,133,0.15)':'rgba(138,166,133,0.12)',
+      doneNavColor:'#8aa685',
+      toggleDark:this.toggleDark,
+      ioBtnBg:darkMode?'rgba(255,255,255,0.07)':'#ece8e3',
+      ioBtnColor:'#7a6e68',
+      onExportClick:this.onExportClick, onExportSummary:this.onExportSummary, onImport:this.onImport,
+
+      // Navigation
+      goMain:this.goMain, onGoQ:this.onGoQ, onGoQBody:this.onGoQBody, onFocusBodyBack:this.onFocusBodyBack,
+      isMainView, isFocusView,
+      dot1Opacity:dotOp(1), dot2Opacity:dotOp(2), dot3Opacity:dotOp(3), dot4Opacity:dotOp(4),
+
+      // Grid quadrant data
+      q1Tasks:this._q1, q2Tasks:this._q2, q3Tasks:this._q3, q4Tasks:this._q4,
+      q1Count:this._q1.length, q2Count:this._q2.length, q3Count:this._q3.length, q4Count:this._q4.length,
+      q1Empty:!this._q1.length, q2Empty:!this._q2.length, q3Empty:!this._q3.length, q4Empty:!this._q4.length,
+
+      // Focus quadrant data
+      aqColor, aqEmoji, aqLabel, aqTasks:aqTasksArr, aqCount, aqEmpty:aqTasksArr.length===0,
+      aqFormBg, aqFormBorder, aqHoverBg,
+      addingToAQ, notAddingToAQ:!addingToAQ,
+      startAddAQ: activeQ ? startAddMap[activeQ] : this.startAddQ1,
+      onDropAQ:    activeQ ? dropMap[activeQ]    : this.onDropQ1,
+      onDragOverAQ:activeQ ? overMap[activeQ]    : this.onDragOverQ1,
+      aqShadow: activeQ ? mkShadow(activeQ,aqColor) : '0 1px 4px rgba(0,0,0,0.05)',
+
+      done, total, pctLabel:pct+'%', pctStr:pct+'%',
+      onTaskDragStart:this.onTaskDragStart, onTaskDragEnd:this.onTaskDragEnd,
+      onTaskToggle:this.onTaskToggle, onTaskDelete:this.onTaskDelete,
+
+      addingTo,
+      addingToQ1:addingTo===1, notAddingToQ1:addingTo!==1,
+      addingToQ2:addingTo===2, notAddingToQ2:addingTo!==2,
+      addingToQ3:addingTo===3, notAddingToQ3:addingTo!==3,
+      addingToQ4:addingTo===4, notAddingToQ4:addingTo!==4,
+      newText,newDate,
+      inputBorderColor,
+      inputPlaceholder:inputError?'请输入任务名称！':'输入任务名称...',
+      inputAnim:inputError?'errShake 0.35s ease':'none',
+      startAddQ1:this.startAddQ1, startAddQ2:this.startAddQ2, startAddQ3:this.startAddQ3, startAddQ4:this.startAddQ4,
+      cancelAdd:this.cancelAdd, confirmAdd:this.confirmAdd,
+      onTextChange:this.onTextChange, onDateChange:this.onDateChange, onKeyDown:this.onKeyDown,
+      editText,editDate,
+      onTaskLabelClick:this.onTaskLabelClick,
+      confirmEdit:this.confirmEdit, cancelEdit:this.cancelEdit,
+      onEditTextChange:this.onEditTextChange, onEditDateChange:this.onEditDateChange, onEditKeyDown:this.onEditKeyDown,
+      onDropQ1:this.onDropQ1, onDropQ2:this.onDropQ2, onDropQ3:this.onDropQ3, onDropQ4:this.onDropQ4,
+      onDragOverQ1:this.onDragOverQ1, onDragOverQ2:this.onDragOverQ2, onDragOverQ3:this.onDragOverQ3, onDragOverQ4:this.onDragOverQ4,
+      onDragLeave:this.onDragLeave,
+      q1Shadow:mkShadow(1,'#b87a6a'), q2Shadow:mkShadow(2,'#b09860'), q3Shadow:mkShadow(3,'#9e8272'), q4Shadow:mkShadow(4,'#8aa685'),
+      editSwatches:mkSwatches(editColor), addSwatches:mkSwatches(newColor),
+      onSwatchClickEdit:this.onSwatchClickEdit, onSwatchClickAdd:this.onSwatchClickAdd,
+      clearEditColor:this.clearEditColor, clearAddColor:this.clearAddColor,
+    };
+  }
+}
+</script>
+</body>
+</html>
